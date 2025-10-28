@@ -4,56 +4,56 @@ const path = require('path');
 const cors = require('cors');
 const connectDB = require('./config/db');
 
-// Load env variables from the backend folder explicitly so the app works
-// even when started from a different current working directory.
+// Load environment variables
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 // Connect to MongoDB
 connectDB();
 
 const app = express();
+app.use(express.json()); // Body parser for JSON
 
-// Middleware
-app.use(express.json()); // Body parser for raw JSON
-// Allow CORS from local frontend dev server(s).
-// During development the frontend may run on 5173, 5174, etc. Accept any http://localhost:<port> origin.
-// Allow CORS from local development OR a configured FRONTEND_URL (set this in Render/Vercel)
-const allowedFrontend = process.env.FRONTEND_URL;
+// ✅ Step 1: Define allowed origins
+const allowedOrigins = [
+  'http://localhost:5173', // local dev frontend
+  'http://localhost:5174', // sometimes Vite uses another port
+  'https://pooja-restaurant-frontend-8vxkgbu48.vercel.app' // deployed frontend
+];
+
+// ✅ Step 2: Setup CORS middleware
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like curl or server-to-server)
+      // Allow requests with no origin (e.g., server-to-server)
       if (!origin) return callback(null, true);
-      // Accept any localhost origin (http://localhost:PORT)
-      try {
-        const u = new URL(origin);
-        if (u.hostname === 'localhost') return callback(null, true);
-      } catch (e) {
-        // fallthrough to other checks
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.log(`❌ Blocked by CORS: ${origin}`);
+        callback(new Error('Not allowed by CORS'));
       }
-      // Accept the configured frontend origin exactly
-      if (allowedFrontend && origin === allowedFrontend) return callback(null, true);
-      return callback(new Error('Not allowed by CORS'));
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true,
+    credentials: true
   })
 );
 
-// Routes
+// ✅ Step 3: Import routes
 const foodRoutes = require('./routes/foodRoutes');
 const authRoutes = require('./routes/authRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 
+// ✅ Step 4: Use routes
 app.use('/api/food', foodRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/order', orderRoutes);
 
-// Simple test route
+// ✅ Step 5: Test route
 app.get('/', (req, res) => {
-  res.send('API is running...');
+  res.send('API is running successfully...');
 });
 
+// ✅ Step 6: Start server
 const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
