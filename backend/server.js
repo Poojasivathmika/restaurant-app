@@ -22,10 +22,10 @@ app.use(express.json());
 // Allow the exact Vercel frontend URL your app is using plus local dev ports.
 // IMPORTANT: include the exact Vercel subdomain (the -8hv2v8ad8 part)
 const allowedOrigins = [
-  'https://pooja-restaurant-frontend-8hv2v8ad8.vercel.app', // deployed frontend (exact)
-  'https://pooja-restaurant-frontend.vercel.app',           // optional: if you ever use a different alias
-  'http://localhost:5173',  // Vite dev
-  'http://localhost:5174',  // alternative Vite port
+ 'https://pooja-restaurant-frontend.vercel.app',          // main frontend
+  'https://pooja-restaurant-frontend-i0qp3pyws.vercel.app', // temporary Vercel deployment
+  'http://localhost:5173',
+  'http://localhost:5174' // alternative Vite port
 ];
 
 app.use(
