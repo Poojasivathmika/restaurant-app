@@ -13,18 +13,18 @@ connectDB();
 const app = express();
 app.use(express.json()); // Body parser for JSON
 
-// ✅ Step 1: Define allowed origins
+// ✅ Allowed origins (your frontend + local dev)
 const allowedOrigins = [
-  'http://localhost:5173', // local dev frontend
-  'http://localhost:5174', // sometimes Vite uses another port
-  'https://pooja-restaurant-frontend-8vxkgbu48.vercel.app' // deployed frontend
+  'https://pooja-restaurant-frontend.vercel.app', // your live frontend
+  'http://localhost:5173', // local dev
+  'http://localhost:5174'  // sometimes Vite uses this port
 ];
 
-// ✅ Step 2: Setup CORS middleware
+// ✅ CORS configuration
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (e.g., server-to-server)
+    origin: function (origin, callback) {
+      // Allow requests with no origin (e.g., backend test tools or server-to-server)
       if (!origin) return callback(null, true);
 
       if (allowedOrigins.includes(origin)) {
@@ -35,25 +35,25 @@ app.use(
       }
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true
+    credentials: true,
   })
 );
 
-// ✅ Step 3: Import routes
+// ✅ Import routes
 const foodRoutes = require('./routes/foodRoutes');
 const authRoutes = require('./routes/authRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 
-// ✅ Step 4: Use routes
+// ✅ Use routes
 app.use('/api/food', foodRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/order', orderRoutes);
 
-// ✅ Step 5: Test route
+// ✅ Test route
 app.get('/', (req, res) => {
   res.send('API is running successfully...');
 });
 
-// ✅ Step 6: Start server
+// ✅ Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
