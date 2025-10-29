@@ -48,10 +48,11 @@ mongoose.connect(process.env.MONGO_URI, {
 
 
 // --- Routes (Keep these as they were) ---
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/menu', require('./routes/menu'));
-app.use('/api/orders', require('./routes/orders')); // Assuming you have this route
-
+// --- Routes (Keep these as they were) ---
+// Note: Node.js implicitly looks for .js extension, so we use the base filename
+app.use('/api/auth', require('./routes/authRoutes')); // Changed from './routes/auth'
+app.use('/api/menu', require('./routes/foodRoutes')); // Changed from './routes/menu'
+app.use('/api/orders', require('./routes/orderRoutes')); // Changed from './routes/orders'
 // Basic route for the deployed Render server
 app.get('/', (req, res) => {
     res.send('Restaurant API is running!');
