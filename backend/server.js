@@ -8,11 +8,16 @@ dotenv.config();
 const app = express();
 
 // --- 1. DEFINE ALLOWED ORIGINS ---
-// This array MUST include the domain name of your deployed Vercel frontend.
+// This array MUST include the stable production domain of your Vercel frontend.
 const allowedOrigins = [
     'http://localhost:5173', // Your local development port
-    // CRITICAL: Ensure this matches the deployed URL of your Vercel frontend
-    'https://pooja-restaurant-frontend-d8d5qbhphh.vercel.app' 
+    
+    // 1. Stable Production Domain (RECOMMENDED FIX)
+    // Please verify this domain in your Vercel dashboard and update if necessary.
+    'https://pooja-restaurant-frontend.vercel.app', 
+    
+    // 2. TEMPORARY fix for the current failed deploy URL:
+    'https://pooja-restaurant-frontend-58mkb14kp.vercel.app'
 ];
     
 // --- 2. CONFIGURE CORS MIDDLEWARE ---
@@ -23,8 +28,9 @@ app.use(cors({
 
         // 2. Check if the incoming request origin is in the allowed list
         if (allowedOrigins.indexOf(origin) === -1) {
-            const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
+            const msg = The CORS policy for this site does not allow access from the specified Origin: ${origin};
             // In production, we send an error; during development, you might log a warning
+            // The actual error is thrown here (line 28 in your server.js)
             return callback(new Error(msg), false);
         }
         
@@ -61,4 +67,4 @@ app.get('/', (req, res) => {
 
 // --- Server Start ---
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+app.listen(PORT, () => console.log(Server started on port ${PORT}));
