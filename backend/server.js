@@ -46,7 +46,7 @@ mongoose.connect(process.env.MONGO_URI)
 
 // --- Routes ---
 app.use('/api/auth', require('./routes/authRoutes')); 
-app.use('/api/menu', require('./routes/foodRoutes')); 
+app.use('/api/food', require('./routes/foodRoutes')); 
 app.use('/api/orders', require('./routes/orderRoutes')); 
 
 // Basic route for the deployed Render server
