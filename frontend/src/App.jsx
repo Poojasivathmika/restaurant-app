@@ -18,7 +18,9 @@ function App() {
         if (token) {
             // A token exists. Set the state to authenticated to maintain session.
             setIsAuthenticated(true);
-            console.log("Token found in localStorage. Session restored.");
+            console.log("Token found in localStorage. Session restored. isAuthenticated: true");
+        } else {
+            console.log("No token found in localStorage. isAuthenticated: false");
         }
         
         // Always set loading to false once the check is done.
@@ -29,6 +31,7 @@ function App() {
     const handleLogin = (authData) => {
         // OwnerLogin component handles saving the token to localStorage
         setIsAuthenticated(true);
+        console.log("Login successful, setting isAuthenticated: true");
     };
 
     // Function to handle logout (clears state and storage)
@@ -45,6 +48,7 @@ function App() {
 
     // --- Private Route Protection Component ---
     const PrivateRoute = ({ children }) => {
+        console.log(`[PrivateRoute Check] isAuthenticated: ${isAuthenticated}`); // <-- NEW LOG
         // If not authenticated, redirect to the login page.
         return isAuthenticated ? children : <Navigate to="/owner-login" replace />;
     };
