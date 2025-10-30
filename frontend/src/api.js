@@ -1,31 +1,23 @@
 import axios from 'axios';
 
-// NOTE: VITE automatically exposes environment variables prefixed with VITE_
-const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-
+// Set the base URL for the backend API. Use Vite env var in production/deploy.
 const api = axios.create({
-    baseURL: VITE_BACKEND_URL, 
-    headers: {
-        'Content-Type': 'application/json',
-    },
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
 });
 
-// ** CRITICAL FIX: AXIOS INTERCEPTOR **
-// This code runs before every API request to check and attach the token.
+// Use an interceptor to automatically add the token to requests
+// This is crucial for owner-only routes (POST, PUT, DELETE /food)
 api.interceptors.request.use(
-    (config) => {
-        // Use the key 'token' (which is set in OwnerLogin.jsx)
-        const token = localStorage.getItem('token');
-        
-        if (token) {
-            // Set the Authorization header for all protected endpoints
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
     }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
 );
 
 export default api;

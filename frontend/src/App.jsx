@@ -1,71 +1,104 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-// Components:
+import Header from './components/Header';
+import CustomerPage from './pages/CustomerPage';
+import OwnerPage from './pages/OwnerPage';
 import OwnerLogin from './pages/OwnerLogin';
-import OwnerPage from './pages/OwnerPage';   // Your protected page
-import CustomerPage from './pages/CustomerPage'; 
-import CartPage from './pages/CartPage'; // Your Cart page
+import CartPage from './pages/CartPage';
+import Footer from './components/Footer';
 
 function App() {
-    // State to hold the authentication status
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    // State to track if we have finished checking localStorage
-    const [isAuthLoading, setIsAuthLoading] = useState(true); 
+  const [cart, setCart] = useState([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isOwner, setIsOwner] = useState(false); // State for owner status
 
-    // --- 🔑 AUTHENTICATION PERSISTENCE CHECKER ---
-    useEffect(() => {
-        // Check for the token when the app loads
-        const token = localStorage.getItem('token');
-        
-        if (token) {
-            // If token exists, assume authenticated to restore session
-            setIsAuthenticated(true);
-        }
-        
-        // This is necessary to stop the app from showing "Loading"
-        setIsAuthLoading(false); 
-    }, []); 
-
-    const handleLogin = (authData) => {
-        // The OwnerLogin component handles saving the token to localStorage
-        setIsAuthenticated(true);
-    };
-
-    const handleLogout = () => {
-        // Clear the token from storage and reset state
-        localStorage.removeItem('token'); 
-        setIsAuthenticated(false);
-    };
-
-    if (isAuthLoading) {
-        return <div className="text-center p-8 text-xl">Loading application...</div>;
+  // Check for owner token on initial load
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      setIsOwner(true);
     }
+  }, []);
 
-    const PrivateRoute = ({ children }) => {
-        // Redirects to login if not authenticated
-        return isAuthenticated ? children : <Navigate to="/owner-login" replace />;
-    };
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setIsOwner(false);
+    // Navigate to home page
+    window.location.href = '/'; 
+  };
 
-    return (
-        <Router>
-            <Routes>
-                {/* Public Routes */}
-                <Route path="/" element={<CustomerPage />} />
-                <Route path="/owner-login" element={<OwnerLogin onLogin={handleLogin} />} />
-                <Route path="/cart" element={<CartPage />} /> 
+  const addToCart = (food) => {
+    setCart((prevCart) => {
+      const existingItem = prevCart.find((item) => item._id === food._id);
+      if (existingItem) {
+        return prevCart.map((item) =>
+          item._id === food._id ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      }
+      return [...prevCart, { ...food, quantity: 1 }];
+    });
+  };
 
-                {/* Private Route for the Owner Page */}
-                <Route 
-                    path="/owner" 
-                    element={
-                        <PrivateRoute>
-                            <OwnerPage onLogout={handleLogout} /> 
-                        </PrivateRoute>
-                    } 
+  const updateCartQuantity = (id, quantity) => {
+    if (quantity <= 0) {
+      setCart((prevCart) => prevCart.filter((item) => item._id !== id));
+    } else {
+      setCart((prevCart) =>
+        prevCart.map((item) => (item._id === id ? { ...item, quantity } : item))
+      );
+    }
+  };
+
+  const handleCheckoutSuccess = () => {
+    setCart([]);
+    setIsCartOpen(false);
+  };
+
+  return (
+    <Router>
+      <div className="min-h-screen flex flex-col">
+        <Header 
+          isOwner={isOwner} 
+          onLogout={handleLogout} 
+          onCartClick={() => setIsCartOpen(true)} 
+          cartItemCount={cart.reduce((acc, item) => acc + item.quantity, 0)} 
+        />
+        <main className="flex-grow p-4 bg-gray-50">
+          <Routes>
+            <Route path="/" element={<CustomerPage onAddToCart={addToCart} />} />
+            <Route 
+              path="/cart" 
+              element={
+                <CartPage 
+                  cart={cart}
+                  onUpdateQuantity={updateCartQuantity}
+                  onRemoveFromCart={(id) => updateCartQuantity(id, 0)}
+                  onCheckout={handleCheckoutSuccess}
                 />
-            </Routes>
-        </Router>
-    );
+              }
+            />
+            <Route 
+              path="/owner/login" 
+              element={
+                isOwner ? 
+                <Navigate to="/owner" replace /> : 
+                <OwnerLogin onLogin={() => setIsOwner(true)} />
+              }
+            />
+            <Route 
+              path="/owner" 
+              element={
+                isOwner ? 
+                <OwnerPage isOwner={isOwner} setIsOwner={setIsOwner} /> : 
+                <Navigate to="/owner/login" replace />
+              }
+            />
+          </Routes>
+        </main>
+        <Footer />
+      </div>
+    </Router>
+  );
 }
 
 export default App;
