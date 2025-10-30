@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import OwnerLogin from './pages/OwnerLogin'; // NOTE: Assuming this is the component that uses the form
 import OwnerPage from './pages/OwnerPage';   // NOTE: Using the correct file name
 import CustomerPage from './pages/CustomerPage'; 
+import CartPage from './pages/CartPage'; // <--- IMPORTED CARTPAGE
 
 function App() {
     // State to hold the authentication status
@@ -59,6 +60,7 @@ function App() {
                 {/* Public Routes */}
                 <Route path="/" element={<CustomerPage />} />
                 <Route path="/owner-login" element={<OwnerLogin onLogin={handleLogin} />} />
+                <Route path="/cart" element={<CartPage />} /> {/* <--- NEW CART ROUTE */}
 
                 {/* Private Route for the Owner Page */}
                 <Route 
